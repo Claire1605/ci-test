@@ -1,0 +1,17 @@
+name: main
+
+on:
+  push:
+    branches: main
+
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+      - run: node -v
