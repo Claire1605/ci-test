@@ -1,6 +1,5 @@
 name: pages
 
-# Controls when the workflow will run
 on:
   pull_request:
     types: [synchronize, closed]
@@ -13,8 +12,9 @@ concurrency:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  pages: write         # to deploy to Pages
+  id-token: write      # to verify the deployment originates from an appropriate source
+  pull-requests: write # to leave a comment
 
 jobs:
   build:
@@ -38,21 +38,21 @@ jobs:
           workflow: pages.yml
           path: pages
         continue-on-error: true # ignored since artifact may not exist
-
-      - run: |
+      - name: extract old build
+        working-directory: pages
+        run: |
           tar xf artifact.tar
           rm artifact.tar
-        working-directory: pages
         continue-on-error: true # ignored since artifact may not exist
 
-      - name: combine builds
+      - name: merge new build into old build
         run: rsync -a build/ pages/
 
       - name: recreate index
+        working-directory: pages
         run: |
-          cd pages
           ls -d */ | cut -f1 -d'/' > index.html
-          sed -i 's/^\(.*\)$/<a href=".\/\1">\1<\/a>/g' index.html
+          sed -i 's/^\(.*\)$/<a href=".\/\1">\1<\/a><br\/>/g' index.html
           cat index.html
 
       - name: upload
@@ -66,19 +66,12 @@ jobs:
     if: github.event.action == 'synchronize'
     needs: build
 
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write         # to deploy to Pages
-      id-token: write      # to verify the deployment originates from an appropriate source
-      pull-requests: write # to leave a comment
-
-    # Deploy to the github-pages environment
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}${{ github.head_ref }}
 
     steps:
-      - name: Deploy to GitHub Pages
+      - name: deploy
         id: deployment
         uses: actions/deploy-pages@v1
       - uses: actions/github-script@v5
@@ -89,7 +82,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🚀 ${{ steps.deployment.outputs.page_url }}${{ github.head_ref }}'
+              body: 'Preview: ${{ steps.deployment.outputs.page_url }}${{ github.head_ref }}'
             })
 
 
@@ -106,21 +99,21 @@ jobs:
           workflow: pages.yml
           path: pages
         continue-on-error: true # ignored since artifact may not exist
-
-      - run: |
+      - name: extract old build
+        working-directory: pages
+        run: |
           tar xf artifact.tar
           rm artifact.tar
-        working-directory: pages
         continue-on-error: true # ignored since artifact may not exist
 
       - name: delete branch
         run: rm -rf pages/${{ github.head_ref }}
 
       - name: recreate index
+        working-directory: pages
         run: |
-          cd pages
           ls -d */ | cut -f1 -d'/' > index.html
-          sed -i 's/^\(.*\)$/<a href=".\/\1">\1<\/a>/g' index.html
+          sed -i 's/^\(.*\)$/<a href=".\/\1">\1<\/a><br\/>/g' index.html
           cat index.html
 
       - name: upload
@@ -134,18 +127,11 @@ jobs:
     if: github.event.action == 'closed'
     needs: cleanup
 
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write         # to deploy to Pages
-      id-token: write      # to verify the deployment originates from an appropriate source
-      pull-requests: write # to leave a comment
-
-    # Deploy to the github-pages environment
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}${{ github.head_ref }}
 
     steps:
-      - name: Deploy to GitHub Pages
+      - name: deploy
         id: deployment
         uses: actions/deploy-pages@v1
