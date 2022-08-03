@@ -2,7 +2,7 @@ name: pages
 
 on:
   pull_request:
-    types: [synchronize, closed]
+    types: [opened, reopened, synchronize, closed]
 
 # Allow one concurrent pages deploy/cleanup
 concurrency:
@@ -19,7 +19,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event.action == 'synchronize'
+    if: github.event.action != 'closed'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}${{ github.head_ref }}
