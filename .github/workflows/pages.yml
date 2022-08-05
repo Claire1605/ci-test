@@ -68,7 +68,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
         with:
-          token: ${{ $DEPLOY_TOKEN }}
+          token: ${{ secrets.DEPLOY_TOKEN }}
 
   cleanup:
     runs-on: ubuntu-latest
