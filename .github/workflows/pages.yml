@@ -111,4 +111,7 @@ jobs:
           retention-days: 1
       - name: deploy
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: pages
+          token: ${{ secrets.DEPLOY_TOKEN }}
