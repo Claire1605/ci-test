@@ -15,7 +15,7 @@ jobs:
     if: github.event.action != 'closed'
     environment:
       name: github-pages
-      url: https://seleb.github.io/ci-test${{ github.head_ref }}
+      url: https://seleb.github.io/ci-test/${{ github.head_ref }}
 
     steps:
       - uses: actions/checkout@v3
@@ -69,7 +69,7 @@ jobs:
     if: github.event.action == 'closed'
     environment:
       name: github-pages
-      url: https://seleb.github.io/ci-test${{ github.head_ref }}
+      url: https://seleb.github.io/ci-test/${{ github.head_ref }}
 
     steps:
       - uses: actions/checkout@v3
