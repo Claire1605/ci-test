@@ -9,13 +9,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write         # to deploy to Pages
-  id-token: write      # to verify the deployment originates from an appropriate source
-  pull-requests: write # to leave a comment
-
 jobs:
   build:
     runs-on: ubuntu-latest
